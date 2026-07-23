@@ -21,7 +21,7 @@ jobs:
         language: [java-kotlin, javascript-typescript]
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
       - uses: actions/setup-java@v4
@@ -33,4 +33,4 @@ jobs:
         if: matrix.language == 'java-kotlin'
         working-directory: backend
         run: ./mvnw -B -DskipTests package
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v4
