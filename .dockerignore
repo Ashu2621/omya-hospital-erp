@@ -1,0 +1,14 @@
+.git
+.github
+.m2
+.next
+.sites-runtime
+.wrangler
+backend
+coverage
+deploy
+dist
+node_modules
+*.log
+.env*
+!.env.example

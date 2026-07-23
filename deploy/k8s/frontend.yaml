@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: omya-hospital
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: omya-frontend }
+  template:
+    metadata:
+      labels: { app: omya-frontend }
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: frontend
+          image: ghcr.io/your-org/omya-hospital-frontend:latest
+          ports:
+            - { name: http, containerPort: 3000 }
+          env:
+            - { name: WRANGLER_LOG_PATH, value: "/tmp/wrangler.log" }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 384Mi }
+          readinessProbe:
+            httpGet: { path: /, port: http }
+            initialDelaySeconds: 8
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: omya-hospital
+spec:
+  selector: { app: omya-frontend }
+  ports:
+    - { name: http, port: 80, targetPort: http }

@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Unit and integration tests
+        working-directory: backend
+        env:
+          DATABASE_PASSWORD: ci-placeholder
+          JWT_SECRET: ci-only-secret-with-at-least-thirty-two-bytes
+        run: ./mvnw -B verify
+
+  containers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [frontend, backend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: omya-hospital-frontend:ci
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: false
+          tags: omya-hospital-backend:ci

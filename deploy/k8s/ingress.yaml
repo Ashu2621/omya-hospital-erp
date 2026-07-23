@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: omya
+  namespace: omya-hospital
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 5m
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [hospital.example.com]
+      secretName: omya-tls
+  rules:
+    - host: hospital.example.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service: { name: backend, port: { name: http } }
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: frontend, port: { name: http } }

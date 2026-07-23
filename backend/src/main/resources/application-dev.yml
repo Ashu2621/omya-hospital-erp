@@ -1,0 +1,8 @@
+app:
+  bootstrap:
+    admin:
+      enabled: true
+
+logging:
+  level:
+    com.omya.hospital: DEBUG
