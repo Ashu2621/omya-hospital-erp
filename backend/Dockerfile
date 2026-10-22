@@ -5,7 +5,7 @@ RUN mvn -B -DskipTests dependency:go-offline
 COPY src ./src
 RUN mvn -B -DskipTests package
 
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:24-jre-alpine AS runtime
 WORKDIR /app
 RUN addgroup -g 10001 -S omya && adduser -u 10001 -S omya -G omya
 COPY --from=build --chown=omya:omya /workspace/target/hospital-backend-2.0.0.jar app.jar
